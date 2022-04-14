@@ -15,5 +15,4 @@ contract HydrogenProduction is ERC20, Ownable, ERC20Burnable {
         require(_amount !=0,'Cannot produce zero energy');
         _mint(msg.sender, _amount);
     }
-
 }
