@@ -19,6 +19,13 @@ contract SUPPLYHYDROGEN is ERC1155 {
     address public RENEWABLES_PROVIDER;
     address public FUEL_GENERATOR;
 
+    // set decimal value
+    uint public decimalUnit = 1e4; //10000
+
+    // required Units
+    uint public waterRequired = 109106;
+    uint public electricityRequired = 550000;
+
     constructor(address _water, address _energy, address _fuel) ERC1155("") {
         h2Token = IERC1155(address(this));
 
@@ -39,13 +46,57 @@ contract SUPPLYHYDROGEN is ERC1155 {
 
     function mintHydrogen() public {
 
-        uint _balanceEnergy = h2Token.balanceOf(msg.sender,RENEWABLES);
         uint _balanceWater = h2Token.balanceOf(msg.sender,WATER);
+        console.log('Balance of water in gallons', _balanceWater);
+
+        uint _balanceEnergy = h2Token.balanceOf(msg.sender,RENEWABLES);
+        console.log('Balance of energy in KwH', _balanceEnergy);
+
+        require( _balanceWater >= waterRequired, 'Not enough Water!');
+        require( _balanceEnergy >= electricityRequired, 'Not enough Energy!');
+
         // todo: Correct H2 Formula to check (require statement)
-        uint h2 = _balanceEnergy + _balanceWater;
-        _mint(msg.sender, HYDROGEN_FUEL, h2 , "");
-        _burn(msg.sender, 0, _balanceWater);
-        _burn(msg.sender, 1, _balanceEnergy);
+        // Minimum require gallons of water:  2.4 Gallons of water, i.e. 10.9106 Liter
+        // Updated Version:
+        uint maxWater = _balanceWater / waterRequired;
+        console.log('_balanceWater', _balanceWater);
+        console.log('waterRequired', waterRequired);
+        console.log('maxWater', maxWater);
+
+        uint maxEnergy = _balanceEnergy / electricityRequired;
+        console.log('_balanceEnergy', _balanceEnergy);
+        console.log('electricityRequired', electricityRequired);
+        console.log('maxEnergy', maxEnergy);
+
+
+        uint hydrogenProduction;
+
+        if (maxWater >= maxEnergy){
+            hydrogenProduction = maxEnergy;
+        }
+        else {
+            hydrogenProduction = maxWater;
+        }
+
+        _mint(msg.sender, HYDROGEN_FUEL, hydrogenProduction , "");
+        _burn(msg.sender, WATER, maxWater);
+        _burn(msg.sender, RENEWABLES, maxEnergy);
+
+        console.log('hydrogenProduction',hydrogenProduction);
+
+
+
+        // Old version below
+//        uint h2 = 1 * decimalUnit; //Kg of h2
+//        _mint(msg.sender, HYDROGEN_FUEL, h2 , "");
+//        _burn(msg.sender, 0, waterRequired);
+//        _burn(msg.sender, 1, electricityRequired);
+
+
+        uint _balanceWater1 = h2Token.balanceOf(msg.sender,WATER);
+        console.log('Balance of water in gallons', _balanceWater1);
+        uint _balanceEnergy1 = h2Token.balanceOf(msg.sender,RENEWABLES);
+        console.log('Balance of energy in gallons', _balanceEnergy1);
 
     }
 

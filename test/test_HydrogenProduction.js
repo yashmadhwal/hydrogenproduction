@@ -1,10 +1,14 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { BigNumber } = require("@ethersproject/bignumber");
 
 describe("Phase 1", function () {
 
     let contractOwnerProducer, contractAddress;
     let h2p; // Deployed instance
+
+    // Units
+    let decimalUnit;
     let batchOfEnergy;
 
     // Burning Variables
@@ -37,33 +41,38 @@ describe("Phase 1", function () {
         it('WATER generator address is correctly deployed', async function () {
             expect(await h2p.FUEL_GENERATOR()).equal(electrolysis.address);
         });
+
+        it('Decimal Value', async function () {
+            decimalUnit = ethers.BigNumber.from(await h2p.decimalUnit());
+            expect(decimalUnit).equal(10000)
+        });
     });
 
     describe('Production Phase', () => {
         it('Renewables cannot generate Zero Energy', async function () {
-            await expect(h2p.connect(renewables).mintEnergy(0)).to.revertedWith('Invalid amount of Energy')
+            await expect(h2p.connect(renewables).mintEnergy(decimalUnit.mul(0))).to.revertedWith('Invalid amount of Energy')
         });
 
         it('Non authorised renewable energy makers cannot make energy', async function () {
-            await expect(h2p.mintEnergy(1000)).to.revertedWith('Not Authorised Access')
+            await expect(h2p.mintEnergy(decimalUnit.mul(1000))).to.revertedWith('Not Authorised Access')
         });
 
         it('Renewables cannot generate Zero Energy', async function () {
-            await expect(h2p.connect(waterSupplier).mintWater(0)).to.revertedWith('Invalid amount of Energy')
+            await expect(h2p.connect(waterSupplier).mintWater(decimalUnit.mul(0))).to.revertedWith('Invalid amount of Energy')
         });
 
         it('Non authorised renewable energy makers cannot make energy', async function () {
-            await expect(h2p.mintWater(1000)).to.revertedWith('Not Authorised Access')
+            await expect(h2p.mintWater(decimalUnit.mul(1000))).to.revertedWith('Not Authorised Access')
         });
 
         it('Renewables can create tokens', async function () {
             // Minting 1000 batches each
-            await h2p.connect(waterSupplier).mintWater(1000);
-            await h2p.connect(renewables).mintEnergy(1000);
+            await h2p.connect(waterSupplier).mintWater(decimalUnit.mul(1000));
+            await h2p.connect(renewables).mintEnergy(decimalUnit.mul(1000));
 
             // Transferring
-            await h2p.connect(waterSupplier).safeTransferFrom(waterSupplier.address,electrolysis.address, 0, 1000, '0x0000000000000000000000000000000000000000000000000000000000000000')
-            await h2p.connect(renewables).safeTransferFrom(renewables.address,electrolysis.address, 1, 1000, '0x0000000000000000000000000000000000000000000000000000000000000000')
+            await h2p.connect(waterSupplier).safeTransferFrom(waterSupplier.address,electrolysis.address, 0, decimalUnit.mul(1000), '0x0000000000000000000000000000000000000000000000000000000000000000')
+            await h2p.connect(renewables).safeTransferFrom(renewables.address,electrolysis.address, 1, decimalUnit.mul(1000), '0x0000000000000000000000000000000000000000000000000000000000000000')
 
             // minting and buring.
             await h2p.connect(electrolysis).mintHydrogen();
