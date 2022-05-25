@@ -59,14 +59,14 @@ contract SUPPLYHYDROGEN is ERC1155 {
         // Minimum require gallons of water:  2.4 Gallons of water, i.e. 10.9106 Liter
         // Updated Version:
         uint maxWater = _balanceWater / waterRequired;
-        console.log('_balanceWater', _balanceWater);
-        console.log('waterRequired', waterRequired);
-        console.log('maxWater', maxWater);
+//        console.log('_balanceWater', _balanceWater);
+//        console.log('waterRequired', waterRequired);
+//        console.log('maxWater', maxWater);
 
         uint maxEnergy = _balanceEnergy / electricityRequired;
-        console.log('_balanceEnergy', _balanceEnergy);
-        console.log('electricityRequired', electricityRequired);
-        console.log('maxEnergy', maxEnergy);
+//        console.log('_balanceEnergy', _balanceEnergy);
+//        console.log('electricityRequired', electricityRequired);
+//        console.log('maxEnergy', maxEnergy);
 
 
         uint hydrogenProduction;
@@ -78,20 +78,17 @@ contract SUPPLYHYDROGEN is ERC1155 {
             hydrogenProduction = maxWater;
         }
 
-        _mint(msg.sender, HYDROGEN_FUEL, hydrogenProduction , "");
-        _burn(msg.sender, WATER, maxWater);
-        _burn(msg.sender, RENEWABLES, maxEnergy);
+        uint hydrogenProduced = hydrogenProduction * decimalUnit;
 
-        console.log('hydrogenProduction',hydrogenProduction);
-
+        uint waterConsumed = maxWater * waterRequired;
+        uint electricityConsumed = maxEnergy * electricityRequired;
 
 
-        // Old version below
-//        uint h2 = 1 * decimalUnit; //Kg of h2
-//        _mint(msg.sender, HYDROGEN_FUEL, h2 , "");
-//        _burn(msg.sender, 0, waterRequired);
-//        _burn(msg.sender, 1, electricityRequired);
+        _mint(msg.sender, HYDROGEN_FUEL, hydrogenProduced , "");
+        _burn(msg.sender, WATER, waterConsumed);
+        _burn(msg.sender, RENEWABLES, electricityConsumed);
 
+        console.log('hydrogenProduction',hydrogenProduced);
 
         uint _balanceWater1 = h2Token.balanceOf(msg.sender,WATER);
         console.log('Balance of water in gallons', _balanceWater1);

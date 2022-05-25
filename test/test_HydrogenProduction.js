@@ -68,11 +68,11 @@ describe("Phase 1", function () {
         it('Renewables can create tokens', async function () {
             // Minting 1000 batches each
             await h2p.connect(waterSupplier).mintWater(decimalUnit.mul(1000));
-            await h2p.connect(renewables).mintEnergy(decimalUnit.mul(1000));
+            await h2p.connect(renewables).mintEnergy(decimalUnit.mul(10000));
 
             // Transferring
             await h2p.connect(waterSupplier).safeTransferFrom(waterSupplier.address,electrolysis.address, 0, decimalUnit.mul(1000), '0x0000000000000000000000000000000000000000000000000000000000000000')
-            await h2p.connect(renewables).safeTransferFrom(renewables.address,electrolysis.address, 1, decimalUnit.mul(1000), '0x0000000000000000000000000000000000000000000000000000000000000000')
+            await h2p.connect(renewables).safeTransferFrom(renewables.address,electrolysis.address, 1, decimalUnit.mul(10000), '0x0000000000000000000000000000000000000000000000000000000000000000')
 
             // minting and buring.
             await h2p.connect(electrolysis).mintHydrogen();
