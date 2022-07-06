@@ -59,14 +59,14 @@ contract SUPPLYHYDROGEN is ERC1155 {
         // Minimum require gallons of water:  2.4 Gallons of water, i.e. 10.9106 Liter
         // Updated Version:
         uint maxWater = _balanceWater / waterRequired;
-//        console.log('_balanceWater', _balanceWater);
-//        console.log('waterRequired', waterRequired);
-//        console.log('maxWater', maxWater);
+        //        console.log('_balanceWater', _balanceWater);
+        //        console.log('waterRequired', waterRequired);
+        //        console.log('maxWater', maxWater);
 
         uint maxEnergy = _balanceEnergy / electricityRequired;
-//        console.log('_balanceEnergy', _balanceEnergy);
-//        console.log('electricityRequired', electricityRequired);
-//        console.log('maxEnergy', maxEnergy);
+        //        console.log('_balanceEnergy', _balanceEnergy);
+        //        console.log('electricityRequired', electricityRequired);
+        //        console.log('maxEnergy', maxEnergy);
 
 
         uint hydrogenProduction;
@@ -94,7 +94,6 @@ contract SUPPLYHYDROGEN is ERC1155 {
         console.log('Balance of water in gallons', _balanceWater1);
         uint _balanceEnergy1 = h2Token.balanceOf(msg.sender,RENEWABLES);
         console.log('Balance of energy in gallons', _balanceEnergy1);
-
     }
 
     modifier onlyRenewable(){

@@ -9,7 +9,16 @@ describe("Phase 1", function () {
 
     // Units
     let decimalUnit;
-    let batchOfEnergy;
+
+    // Requirements
+    // const energyRequired = ethers.FixedNumber.from('55.0000');
+    // const waterRequired = ethers.FixedNumber.from('10.9106');
+
+    const energyRequired = 550000;
+    const waterRequired = 109106;
+    let hydrogenProduced;
+
+
 
     // Burning Variables
     let burnElectrolysis;
@@ -54,7 +63,7 @@ describe("Phase 1", function () {
         });
 
         it('Non authorised renewable energy makers cannot make energy', async function () {
-            await expect(h2p.mintEnergy(decimalUnit.mul(1000))).to.revertedWith('Not Authorised Access')
+            await expect(h2p.mintEnergy(decimalUnit.mul(energyRequired))).to.revertedWith('Not Authorised Access')
         });
 
         it('Renewables cannot generate Zero Energy', async function () {
@@ -62,17 +71,29 @@ describe("Phase 1", function () {
         });
 
         it('Non authorised renewable energy makers cannot make energy', async function () {
-            await expect(h2p.mintWater(decimalUnit.mul(1000))).to.revertedWith('Not Authorised Access')
+            await expect(h2p.mintWater(decimalUnit.mul(waterRequired))).to.revertedWith('Not Authorised Access')
         });
 
         it('Renewables can create tokens', async function () {
-            // Minting 1000 batches each
-            await h2p.connect(waterSupplier).mintWater(decimalUnit.mul(1000));
-            await h2p.connect(renewables).mintEnergy(decimalUnit.mul(10000));
+            // Todo: Below is will be done after fixing decimal points.
+            // Minting
+            // await h2p.connect(waterSupplier).mintWater(decimalUnit.mul(waterRequired));
+            // await h2p.connect(renewables).mintEnergy(decimalUnit.mul(energyRequired));
+            // Transferring
+            // await h2p.connect(waterSupplier).safeTransferFrom(waterSupplier.address,electrolysis.address, 0, decimalUnit.mul(1000), '0x0000000000000000000000000000000000000000000000000000000000000000')
+            // await h2p.connect(renewables).safeTransferFrom(renewables.address,electrolysis.address, 1, decimalUnit.mul(10000), '0x0000000000000000000000000000000000000000000000000000000000000000')
+
+            // minting and buring.
+            // await h2p.connect(electrolysis).mintHydrogen();
+
+
+            // Minting
+            await h2p.connect(waterSupplier).mintWater(waterRequired);
+            await h2p.connect(renewables).mintEnergy(energyRequired);
 
             // Transferring
-            await h2p.connect(waterSupplier).safeTransferFrom(waterSupplier.address,electrolysis.address, 0, decimalUnit.mul(1000), '0x0000000000000000000000000000000000000000000000000000000000000000')
-            await h2p.connect(renewables).safeTransferFrom(renewables.address,electrolysis.address, 1, decimalUnit.mul(10000), '0x0000000000000000000000000000000000000000000000000000000000000000')
+            await h2p.connect(waterSupplier).safeTransferFrom(waterSupplier.address,electrolysis.address, 0, waterRequired, '0x0000000000000000000000000000000000000000000000000000000000000000')
+            await h2p.connect(renewables).safeTransferFrom(renewables.address,electrolysis.address, 1, energyRequired, '0x0000000000000000000000000000000000000000000000000000000000000000')
 
             // minting and buring.
             await h2p.connect(electrolysis).mintHydrogen();
