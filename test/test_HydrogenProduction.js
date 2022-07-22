@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { BigNumber } = require("@ethersproject/bignumber");
 
-describe("Phase 1", function () {
+describe("Basic Smart Contract Testing", function () {
 
     let contractOwnerProducer, contractAddress;
     let h2p; // Deployed instance

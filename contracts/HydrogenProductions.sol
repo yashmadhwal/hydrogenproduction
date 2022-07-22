@@ -44,13 +44,13 @@ contract SUPPLYHYDROGEN is ERC1155 {
         _mint(msg.sender, WATER, _amountWater, "");
     }
 
-    function mintHydrogen() public {
+    function mintHydrogen() public onlyElectrolyser{
 
         uint _balanceWater = h2Token.balanceOf(msg.sender,WATER);
-        console.log('Balance of water in gallons', _balanceWater);
+//        console.log('Balance of water in gallons', _balanceWater);
 
         uint _balanceEnergy = h2Token.balanceOf(msg.sender,RENEWABLES);
-        console.log('Balance of energy in KwH', _balanceEnergy);
+//        console.log('Balance of energy in KwH', _balanceEnergy);
 
         require( _balanceWater >= waterRequired, 'Not enough Water!');
         require( _balanceEnergy >= electricityRequired, 'Not enough Energy!');
@@ -88,12 +88,11 @@ contract SUPPLYHYDROGEN is ERC1155 {
         _burn(msg.sender, WATER, waterConsumed);
         _burn(msg.sender, RENEWABLES, electricityConsumed);
 
-        console.log('hydrogenProduction',hydrogenProduced);
-
-        uint _balanceWater1 = h2Token.balanceOf(msg.sender,WATER);
-        console.log('Balance of water in gallons', _balanceWater1);
-        uint _balanceEnergy1 = h2Token.balanceOf(msg.sender,RENEWABLES);
-        console.log('Balance of energy in gallons', _balanceEnergy1);
+//        console.log('hydrogenProduction',hydrogenProduced);
+//        uint _balanceWater1 = h2Token.balanceOf(msg.sender,WATER);
+//        console.log('Balance of water in gallons', _balanceWater1);
+//        uint _balanceEnergy1 = h2Token.balanceOf(msg.sender,RENEWABLES);
+//        console.log('Balance of energy in gallons', _balanceEnergy1);
     }
 
     modifier onlyRenewable(){
@@ -103,6 +102,11 @@ contract SUPPLYHYDROGEN is ERC1155 {
 
     modifier onlyWater(){
         require(msg.sender == WATER_PROVIDER, 'Not Authorised Access');
+        _;
+    }
+
+    modifier onlyElectrolyser(){
+        require(msg.sender == FUEL_GENERATOR, 'Not Authorised Access');
         _;
     }
 }
