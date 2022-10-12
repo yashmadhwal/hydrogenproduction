@@ -7,3 +7,9 @@ node_modules
 #Artifacts and Cache
 artifacts/
 cache/
+
+#secrets
+.secrets.json
+
+# Ignoring Package json
+package-lock.json

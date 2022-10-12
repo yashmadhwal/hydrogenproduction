@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.16;
+
 // ________________ ERC 1155 _________________________
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 
-contract SUPPLYHYDROGEN is ERC1155 {
+contract SUPPLYHYDROGEN is ERC1155,Ownable {
     // assigning Batch Ids
     uint256 public constant WATER = 0;
     uint256 public constant RENEWABLES = 1;
@@ -23,14 +25,39 @@ contract SUPPLYHYDROGEN is ERC1155 {
     uint public decimalUnit = 1e4; //10000
 
     // required Units
-    uint public waterRequired = 109106;
-    uint public electricityRequired = 550000;
+    uint public waterRequired;
+    uint public electricityRequired; //55.0000
 
-    constructor(address _water, address _energy, address _fuel) ERC1155("") {
+    constructor() ERC1155("") {
         h2Token = IERC1155(address(this));
 
+        // Initial Values
+        waterRequired = 109106; // 10.9106
+        electricityRequired = 550000; //55.0000
+    }
+
+    function setWaterRequirement(uint _waterRequired) public onlyElectrolyser{
+        require(_waterRequired != 0,'Minimum amount cannot be zero');
+        waterRequired = _waterRequired;
+    }
+
+    function setElectricityRequirement(uint _electricityRequired) public onlyElectrolyser{
+        require(_electricityRequired != 0,'Minimum amount cannot be zero');
+        electricityRequired = _electricityRequired;
+    }
+
+    function setWaterProvider(address _water) public onlyOwner{
+        require(_water != address(0),'The Address cannot be null');
         WATER_PROVIDER = _water;
+    }
+
+    function setEnergyProvider(address _energy) public onlyOwner{
+        require(_energy != address(0),'The Address cannot be null');
         RENEWABLES_PROVIDER = _energy;
+    }
+
+    function setFuelProvider(address _fuel) public onlyOwner{
+        require(_fuel != address(0),'The Address cannot be null');
         FUEL_GENERATOR = _fuel;
     }
 
@@ -44,55 +71,39 @@ contract SUPPLYHYDROGEN is ERC1155 {
         _mint(msg.sender, WATER, _amountWater, "");
     }
 
+    function _min(uint maxWater, uint maxEnergy) private pure returns(uint){
+        return maxWater <= maxEnergy ? maxWater: maxEnergy;
+    }
+
     function mintHydrogen() public onlyElectrolyser{
 
         uint _balanceWater = h2Token.balanceOf(msg.sender,WATER);
-//        console.log('Balance of water in gallons', _balanceWater);
-
         uint _balanceEnergy = h2Token.balanceOf(msg.sender,RENEWABLES);
-//        console.log('Balance of energy in KwH', _balanceEnergy);
 
         require( _balanceWater >= waterRequired, 'Not enough Water!');
         require( _balanceEnergy >= electricityRequired, 'Not enough Energy!');
 
-        // todo: Correct H2 Formula to check (require statement)
-        // Minimum require gallons of water:  2.4 Gallons of water, i.e. 10.9106 Liter
-        // Updated Version:
         uint maxWater = _balanceWater / waterRequired;
-        //        console.log('_balanceWater', _balanceWater);
-        //        console.log('waterRequired', waterRequired);
-        //        console.log('maxWater', maxWater);
-
         uint maxEnergy = _balanceEnergy / electricityRequired;
-        //        console.log('_balanceEnergy', _balanceEnergy);
-        //        console.log('electricityRequired', electricityRequired);
-        //        console.log('maxEnergy', maxEnergy);
-
-
         uint hydrogenProduction;
 
-        if (maxWater >= maxEnergy){
-            hydrogenProduction = maxEnergy;
-        }
-        else {
-            hydrogenProduction = maxWater;
-        }
+//        if (maxWater >= maxEnergy){
+//            hydrogenProduction = maxEnergy;
+//        }
+//        else {
+//            hydrogenProduction = maxWater;
+//        }
+
+        hydrogenProduction = _min(maxWater, maxEnergy);
 
         uint hydrogenProduced = hydrogenProduction * decimalUnit;
 
-        uint waterConsumed = maxWater * waterRequired;
-        uint electricityConsumed = maxEnergy * electricityRequired;
-
+        uint waterConsumed = hydrogenProduction * waterRequired;
+        uint electricityConsumed = hydrogenProduction * electricityRequired;
 
         _mint(msg.sender, HYDROGEN_FUEL, hydrogenProduced , "");
         _burn(msg.sender, WATER, waterConsumed);
         _burn(msg.sender, RENEWABLES, electricityConsumed);
-
-//        console.log('hydrogenProduction',hydrogenProduced);
-//        uint _balanceWater1 = h2Token.balanceOf(msg.sender,WATER);
-//        console.log('Balance of water in gallons', _balanceWater1);
-//        uint _balanceEnergy1 = h2Token.balanceOf(msg.sender,RENEWABLES);
-//        console.log('Balance of energy in gallons', _balanceEnergy1);
     }
 
     modifier onlyRenewable(){
